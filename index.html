@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Pokemon Collection</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>My Pokémon Collection</h1>
+    <div style="color:var(--muted); font-size:12px;">Local tracker &middot; prices via pokemontcg.io / TCGplayer</div>
+  </div>
+  <div class="summary">
+    <div class="stat">
+      <div class="label">Estimated Value</div>
+      <div class="value positive" id="statValue">$0.00</div>
+    </div>
+    <div class="stat">
+      <div class="label">Total Cards</div>
+      <div class="value" id="statQty">0</div>
+    </div>
+    <div class="stat">
+      <div class="label">Unique Cards</div>
+      <div class="value" id="statUnique">0</div>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="primary" id="btnRefreshAll">Refresh Prices</button>
+    <button id="btnAddCard">+ Add Card</button>
+    <button id="btnExportCsv">Export CSV</button>
+  </div>
+</header>
+
+<div class="toolbar">
+  <input type="text" id="searchInput" placeholder="Search name or set...">
+  <select id="sortSelect">
+    <option value="value-desc">Value: High to Low</option>
+    <option value="value-asc">Value: Low to High</option>
+    <option value="name-asc">Name: A-Z</option>
+    <option value="set-asc">Set: A-Z</option>
+    <option value="updated-desc">Recently Updated</option>
+  </select>
+</div>
+
+<div class="status-line" id="statusLine"></div>
+
+<main>
+  <table id="cardTable">
+    <thead>
+      <tr>
+        <th>Card</th>
+        <th>Rarity / Condition</th>
+        <th>Price</th>
+        <th>Qty</th>
+        <th>Subtotal</th>
+        <th>Updated</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="cardTableBody"></tbody>
+  </table>
+  <div class="empty-state hidden" id="emptyState">No cards match your search.</div>
+</main>
+
+<div class="modal-backdrop hidden" id="modalBackdrop">
+  <div class="modal">
+    <h2 id="modalTitle">Add Card</h2>
+    <div class="form-row">
+      <label>Name</label>
+      <input type="text" id="fName">
+    </div>
+    <div class="form-grid">
+      <div class="form-row">
+        <label>Set</label>
+        <input type="text" id="fSet">
+      </div>
+      <div class="form-row">
+        <label>Number (e.g. 111/203)</label>
+        <input type="text" id="fNumber">
+      </div>
+      <div class="form-row">
+        <label>Rarity</label>
+        <input type="text" id="fRarity">
+      </div>
+      <div class="form-row">
+        <label>Condition</label>
+        <select id="fCondition">
+          <option>Near Mint</option>
+          <option>Lightly Played</option>
+          <option>Moderately Played</option>
+          <option>Heavily Played</option>
+          <option>Damaged</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Foil</label>
+        <select id="fFoil">
+          <option>Normal</option>
+          <option>Holofoil</option>
+          <option>Reverse Holofoil</option>
+          <option>1st Edition Holofoil</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Qty</label>
+        <input type="number" id="fQty" value="1" min="1">
+      </div>
+      <div class="form-row">
+        <label>Price (each)</label>
+        <input type="number" id="fPrice" step="0.01" min="0">
+      </div>
+    </div>
+    <div id="lookupStatus" style="font-size:12px; color:var(--accent-2); min-height:16px;"></div>
+    <div class="modal-actions">
+      <button id="btnLookupPrice">Look Up Price</button>
+      <button id="btnCancelModal">Cancel</button>
+      <button class="primary" id="btnSaveCard">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
