@@ -40,10 +40,16 @@ async function apiQuery(name, set, numberFilter) {
   let q = `name:"${name.replace(/"/g, "")}" set.name:"${set.replace(/"/g, "")}"`;
   if (numberFilter) q += ` number:${numberFilter}`;
   const url = `https://api.pokemontcg.io/v2/cards?q=${encodeURIComponent(q)}`;
-  const res = await fetch(url);
-  if (!res.ok) return [];
-  const json = await res.json();
-  return json.data || [];
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data || [];
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 async function fetchCardPricing(card) {
@@ -99,16 +105,26 @@ async function refreshAll() {
   const btn = document.getElementById("btnRefreshAll");
   btn.disabled = true;
   let matched = 0;
-  for (let i = 0; i < collection.length; i++) {
-    setStatus(`Refreshing prices... ${i + 1}/${collection.length} (${matched} updated)`);
-    const ok = await refreshOne(collection[i], { save: false, rerender: false });
-    if (ok) matched++;
-    if (i % 8 === 0) render();
-    await sleep(250);
+  let done = 0;
+  const total = collection.length;
+  const queue = collection.slice();
+  const CONCURRENCY = 6;
+
+  async function worker() {
+    while (queue.length) {
+      const card = queue.shift();
+      const ok = await refreshOne(card, { save: false, rerender: false });
+      if (ok) matched++;
+      done++;
+      setStatus(`Refreshing prices... ${done}/${total} (${matched} updated)`);
+      if (done % 10 === 0) render();
+    }
   }
+
+  await Promise.all(Array.from({ length: CONCURRENCY }, worker));
   saveCollection();
   render();
-  setStatus(`Done. Updated ${matched}/${collection.length} cards from live pricing.`);
+  setStatus(`Done. Updated ${matched}/${total} cards from live pricing.`);
   btn.disabled = false;
 }
 
